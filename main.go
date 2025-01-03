@@ -4,26 +4,32 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/iaPlotnikovv/pokemons/internal/pokeapi"
 )
 
 func main() {
 	//fmt.Println("Hello World!")
 	scanner := bufio.NewScanner(os.Stdin)
 	cmdList := cmdInit()
+	configL := pokeapi.InitConf()
+
 	for {
 		fmt.Print("\n Pokemon >")
 		if scanner.Scan() {
 
 			input := CleanInput(scanner.Text())
 
-			if len(input) > 1 {
+			if len(input) > 1 || len(input) == 0 {
 				fmt.Println("\nWrite a one-word command!")
 				continue
 			}
 
 			if key, ok := cmdList.commands[input[0]]; ok {
 
-				if err := key.callback(); err != nil {
+				configL.PageCounter(key.Name)
+
+				if err := key.callback(configL); err != nil {
 					fmt.Printf("\nerror!!!: %v\n", err)
 				}
 				//fmt.Printf("\nYour command was: %v\n", input[0])
