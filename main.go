@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/iaPlotnikovv/pokemons/internal/pokeapi"
+	cache "github.com/iaPlotnikovv/pokemons/internal/pokecache"
 )
 
 func main() {
@@ -13,6 +15,7 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 	cmdList := cmdInit()
 	configL := pokeapi.InitConf()
+	caching := cache.NewCache(20 * time.Second)
 
 	for {
 		fmt.Print("\n Pokemon >")
@@ -29,7 +32,7 @@ func main() {
 
 				configL.PageCounter(key.Name)
 
-				if err := key.callback(configL); err != nil {
+				if err := key.callback(configL, caching); err != nil {
 					fmt.Printf("\nerror!!!: %v\n", err)
 				}
 				//fmt.Printf("\nYour command was: %v\n", input[0])

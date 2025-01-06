@@ -18,7 +18,7 @@ type Location struct {
 
 func InitConf() *Config {
 	return &Config{
-		Next: "https://pokeapi.co/api/v2/location-area",
+		Next: "https://pokeapi.co/api/v2/location-area?offset=0&limit=20",
 	}
 }
 
@@ -34,7 +34,6 @@ func (c *Config) PageCounter(command string) error {
 		if c.Page != 1 {
 			c.Page--
 		}
-
 		return nil
 	default:
 		return nil
