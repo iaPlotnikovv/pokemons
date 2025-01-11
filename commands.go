@@ -3,10 +3,26 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/iaPlotnikovv/pokemons/internal/pokeapi"
 	cache "github.com/iaPlotnikovv/pokemons/internal/pokecache"
+	"github.com/iaPlotnikovv/pokemons/internal/pokedex"
 )
+
+type AppCtx struct {
+	Config  *pokeapi.Config
+	Cache   *cache.Cache
+	Pokedex *pokedex.Pokedex
+}
+
+func appInit() *AppCtx {
+	return &AppCtx{
+		Config:  pokeapi.InitConf(),
+		Cache:   cache.NewCache(20 * time.Second),
+		Pokedex: pokedex.NewPokedex(),
+	}
+}
 
 func CleanInput(text string) []string {
 	//The purpose of this function is to split the users input into "words" based on whitespace.
@@ -19,7 +35,7 @@ func CleanInput(text string) []string {
 type CommandCLI struct {
 	Name     string
 	desc     string
-	callback func(*pokeapi.Config, *cache.Cache, []string) error
+	callback func(*AppCtx, []string) error
 }
 
 type CommandsList struct {
@@ -61,11 +77,21 @@ func cmdInit() *CommandsList {
 		desc:     "Shows pokemons on area",
 		callback: pokeExplore,
 	}
+	cmd.commands["catch"] = CommandCLI{
+		Name:     "catch <pokemon-name>",
+		desc:     "Catches pokemon",
+		callback: pokeCatch,
+	}
+	cmd.commands["pokedex"] = CommandCLI{
+		Name:     "pokedex",
+		desc:     "Shows user's pokemon collection",
+		callback: pokeDex,
+	}
 
 	return cmd
 }
 
-func (c *CommandsList) commandHelp(p *pokeapi.Config, cache *cache.Cache, input []string) error {
+func (c *CommandsList) commandHelp(ctx *AppCtx, input []string) error {
 	if len(input) != 0 {
 		cmd := strings.Join(input, " ")
 		if v, ok := c.commands[cmd]; ok {
@@ -82,6 +108,6 @@ func (c *CommandsList) commandHelp(p *pokeapi.Config, cache *cache.Cache, input 
 	for _, v := range c.commands {
 		fmt.Printf("%v: %v\n", v.Name, v.desc)
 	}
-	fmt.Printf("\nYOU'RE ON PAGE: %v\n\n", p.Page)
+	fmt.Printf("\nYOU'RE ON PAGE: %v\n\n", ctx.Config.Page)
 	return nil
 }

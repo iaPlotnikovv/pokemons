@@ -4,21 +4,18 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"time"
-
-	"github.com/iaPlotnikovv/pokemons/internal/pokeapi"
-	cache "github.com/iaPlotnikovv/pokemons/internal/pokecache"
 )
 
 func main() {
 	//fmt.Println("Hello World!")
 	scanner := bufio.NewScanner(os.Stdin)
 	cmdList := cmdInit()
-	configL := pokeapi.InitConf()
-	caching := cache.NewCache(20 * time.Second)
+	//configL := pokeapi.InitConf()
+	//caching := cache.NewCache()
+	app := appInit()
 
 	//Welcome msg
-	cmdList.commandHelp(configL, caching, []string{})
+	cmdList.commandHelp(app, []string{})
 	//Welcome msg
 
 	for {
@@ -34,9 +31,9 @@ func main() {
 
 			if key, ok := cmdList.commands[input[0]]; ok {
 
-				configL.PageCounter(input)
+				app.Config.PageCounter(input)
 
-				if err := key.callback(configL, caching, input[1:]); err != nil {
+				if err := key.callback(app, input[1:]); err != nil {
 					fmt.Printf("\nerror!!!: %v\n", err)
 				}
 				//fmt.Printf("\nYour command was: %v\n", input[0])

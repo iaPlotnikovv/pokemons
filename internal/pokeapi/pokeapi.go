@@ -13,6 +13,7 @@ type APIResponse struct {
 	Previous *string    `json:"previous"`
 	Results  []Location `json:"results"`
 	Pokemons []Pokemons `json:"pokemon_encounters"`
+	//PokeBaseExperience int `json:"base_experience"`
 }
 
 type Pokemons struct {
