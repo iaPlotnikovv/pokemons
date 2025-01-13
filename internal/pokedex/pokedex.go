@@ -17,12 +17,42 @@ type Pokemon struct {
 	Name            string `json:"name"`
 	Id              int    `json:"id"`
 	Base_experience int    `json:"base_experience"`
+	Height          int    `json:"height"`
+	Weight          int    `json:"weight"`
+	Stats           []struct {
+		BaseStat int `json:"base_stat"`
+		Stat     struct {
+			Name string `json:"name"`
+		} `json:"stat"`
+	} `json:"stats"`
+	Types []struct {
+		Slot int `json:"slot"`
+		Type struct {
+			Name string `json:"name"`
+		} `json:"type"`
+	} `json:"types"`
 }
 
 func NewPokedex() *Pokedex {
 	return &Pokedex{
 		Pokemons: make(map[string]Pokemon),
 	}
+}
+
+func (x *Pokedex) Inspect(p *Pokemon) {
+	fmt.Printf("\n")
+	fmt.Printf("Name: %s\n", p.Name)
+	fmt.Printf("Height: %d\n", p.Height)
+	fmt.Printf("Weight: %d\n", p.Weight)
+	fmt.Println("Stats:")
+	for _, stat := range p.Stats {
+		fmt.Printf(" -%s: %d\n", stat.Stat.Name, stat.BaseStat)
+	}
+	fmt.Println("Types:")
+	for _, typ := range p.Types {
+		fmt.Printf(" -%s: %d\n", typ.Type.Name, typ.Slot)
+	}
+
 }
 
 func (p *Pokedex) Add(name string) (pokeRes Pokemon, err error) {

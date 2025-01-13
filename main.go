@@ -19,10 +19,13 @@ func main() {
 	//Welcome msg
 
 	for {
-		fmt.Print("\n Pokemon >")
+		fmt.Print("\n Pokedex >")
 		if scanner.Scan() {
 
 			input := CleanInput(scanner.Text())
+			if len(input) == 0 {
+				continue
+			}
 
 			//if len(input) > 1 || len(input) == 0 {
 			//	fmt.Println("\nWrite a one-word command!")

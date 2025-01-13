@@ -2,6 +2,7 @@ package cache
 
 import (
 	"fmt"
+	"os"
 	"sync"
 	"time"
 )
@@ -60,24 +61,35 @@ func (c *Cache) reapLoop() {
 	ticker := time.NewTicker(c.interval)
 
 	for {
-		delCounter := 0
 
 		<-ticker.C
+
+		var timesToPrint []float64
+
 		c.mx.Lock()
-		entries := c.Data
-		for k, v := range entries {
+		if len(c.Data) == 0 {
+			c.mx.Unlock()
+			fmt.Fprintf(os.Stderr, "\nNothing to clean, cache is empty!\n")
+			continue
+		}
+
+		for k, v := range c.Data {
 			timePassed := time.Since(v.createdAt)
 			if timePassed > c.interval {
 
 				delete(c.Data, k)
-				delCounter++
-				fmt.Printf("Removed from cache!\nit was %2.f seconds old!\n", timePassed.Seconds())
+				timesToPrint = append(timesToPrint, timePassed.Seconds())
 
 			}
 
 		}
 		c.mx.Unlock()
-
+		for _, sec := range timesToPrint {
+			fmt.Fprintf(os.Stderr, "\nRemoved from cache!\nit was %2.f seconds old!\n", sec)
+		}
+		if len(timesToPrint) > 0 {
+			fmt.Fprintf(os.Stderr, "\nCache cleaned! Total: %v\n", len(timesToPrint))
+		}
 		//fmt.Printf("\nCache cleaned!\ntotal:%v\n", delCounter)
 
 	}

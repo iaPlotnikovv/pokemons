@@ -11,22 +11,27 @@ import (
 )
 
 type AppCtx struct {
-	Config  *pokeapi.Config
-	Cache   *cache.Cache
-	Pokedex *pokedex.Pokedex
+	Config   *pokeapi.Config
+	Cache    *cache.Cache
+	Pokedex  *pokedex.Pokedex
+	Pokearea *pokedex.Pokearea
+	Ban      *pokedex.Ban
 }
 
 func appInit() *AppCtx {
 	return &AppCtx{
-		Config:  pokeapi.InitConf(),
-		Cache:   cache.NewCache(20 * time.Second),
-		Pokedex: pokedex.NewPokedex(),
+		Config:   pokeapi.InitConf(),
+		Cache:    cache.NewCache(30 * time.Second),
+		Pokedex:  pokedex.NewPokedex(),
+		Pokearea: pokedex.InitArea(),
+		Ban:      pokedex.InitBan(),
 	}
 }
 
 func CleanInput(text string) []string {
 	//The purpose of this function is to split the users input into "words" based on whitespace.
 	//It should also lowercase the input and trim any leading or trailing whitespace.
+
 	result := strings.Fields(strings.ToLower(text))
 
 	return result
@@ -87,8 +92,28 @@ func cmdInit() *CommandsList {
 		desc:     "Shows user's pokemon collection",
 		callback: pokeDex,
 	}
+	cmd.commands["inspect"] = CommandCLI{
+		Name:     "inspect <pokemon-name>",
+		desc:     "Shows pokemon's info",
+		callback: pokeInspect,
+	}
+	cmd.commands["clear"] = CommandCLI{
+		Name:     "clear",
+		desc:     "Remove recordings",
+		callback: clearAndRefresh,
+	}
 
 	return cmd
+}
+
+func clearAndRefresh(ctx *AppCtx, input []string) error {
+	if len(input) > 0 {
+		fmt.Printf("\n\nToo many arguments for ONE-WORD command!\n\n")
+		return nil
+	}
+	fmt.Print("\033[H\033[2J")
+	// Add any refresh logic here
+	return nil
 }
 
 func (c *CommandsList) commandHelp(ctx *AppCtx, input []string) error {
